@@ -1,0 +1,7 @@
+distclean: clean
+
+clean:
+	$(MAKE) -C utils/ clean APPDIR=$(APPDIR)
+	$(MAKE) -C mmlplayer/ clean APPDIR=$(APPDIR)
+	$(MAKE) -C musickeyboard/ clean APPDIR=$(APPDIR)
+

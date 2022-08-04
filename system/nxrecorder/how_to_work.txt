@@ -1,0 +1,86 @@
+Recorder state
+
+NXRECORDER_STATE_IDLE
+NXRECORDER_STATE_RECORDING
+NXRECORDER_STATE_PAUSED
+
+
+command: device
+  ret = nxrecorder_setdevice(precorder, parg);
+    temp_fd = open(pdevice, O_RDWR);  /* Just try to open to confirm it exists */
+    close(temp_fd);
+    precorder->device <- device file name
+command: recordraw <file name> <channel num> <bps> <fs> <chmap>
+  nxrecorder_recordraw()
+    ret = nxrecorder_opendevice(precorder);
+      precorder->dev_fd = open(precorder->device, O_RDWR | O_CLOEXEC);
+    ret = ioctl(precorder->dev_fd, AUDIOIOC_RESERVE, 0);
+
+    /* Configure as Audio Input device */
+
+    cap_desc.caps.ac_len = sizeof(struct audio_caps_s);
+    cap_desc.caps.ac_type = AUDIO_TYPE_INPUT;
+    cap_desc.caps.ac_channels = nchannels ? nchannels : 2; <channel num>
+    cap_desc.caps.ac_chmap    = chmap; <chmap>
+    cap_desc.caps.ac_controls.hw[0] = samprate ? samprate : 48000; <fs>
+    cap_desc.caps.ac_controls.b[3] = samprate >> 16; <fs>
+    cap_desc.caps.ac_controls.b[2]  = bpsamp ? bpsamp : 16; <bsp>
+    ret = ioctl(precorder->dev_fd, AUDIOIOC_CONFIGURE, &cap_desc);
+
+
+    ioctl(precorder->dev_fd, AUDIOIOC_GETBUFFERINFO, &buf_info)
+
+
+    /* Create a message queue for the recordthread */
+
+      attr.mq_maxmsg  = buf_info.nbuffers + 8;
+      attr.mq_msgsize = sizeof(struct audio_msg_s);
+      attr.mq_curmsgs = 0;
+      attr.mq_flags   = 0;
+
+      snprintf(precorder->mqname, sizeof(precorder->mqname), "/tmp/%0lx",
+              (unsigned long)((uintptr_t)precorder));
+
+      precorder->mq = mq_open(precorder->mqname, O_RDWR | O_CREAT, 0644, &attr);
+
+    ioctl(precorder->dev_fd, AUDIOIOC_REGISTERMQ, precorder->mq);
+
+
+    PTHREAD CREATE:  nxrecorder_recordthread,
+
+
+
+nxrecorder_recordthread:
+  ioctl(precorder->dev_fd, AUDIOIOC_GETBUFFERINFO, &buf_info)
+
+  Allocate array of apb buffer pointer table.
+
+  while num-of-buffers
+    /* Allocate buffer */
+    buf_desc.numbytes = buf_info.buffer_size;
+    buf_desc.u.pbuffer = &pbuffers[x];
+
+    ioctl(precorder->dev_fd, AUDIOIOC_ALLOCBUFFER, &buf_desc);
+
+    ret = nxrecorder_enqueuebuffer(precorder, pbuffers[x]);
+
+  ioctl(precorder->dev_fd, AUDIOIOC_START, 0);
+
+
+  while (true)
+      size = mq_receive(precorder->mq, (FAR char *)&msg, sizeof(msg), &prio);
+      switch (msg.msg_id)
+          case AUDIO_MSG_DEQUEUE : Actual recording....
+                 nxrecorder_writebuffer(precorder, msg.u.ptr);
+                 nxrecorder_enqueuebuffer(precorder, msg.u.ptr);
+
+          case AUDIO_MSG_STOP:
+          case AUDIO_MSG_COMPLETE:
+
+
+
+=================================================================================
+
+I2S Support
+
+

@@ -1,0 +1,17 @@
+
+
+ifneq ($(CONFIG_EXAMPLES_FMSYNTH),)
+CONFIGURED_APPS += $(APPDIR)/examples/fmsynth
+endif
+
+# ifneq ($(CONFIG_EXAMPLES_FMSYNTH),)
+# CONFIGURED_APPS += $(APPDIR)/examples/fmsynth/utils
+# endif
+
+# ifneq ($(CONFIG_EXAMPLES_FMSYNTH_MMLPLAYER),)
+# CONFIGURED_APPS += $(APPDIR)/examples/fmsynth/mmlplayer
+# endif
+
+# ifneq ($(CONFIG_EXAMPLES_FMSYNTH_KEYBOARD),)
+# CONFIGURED_APPS += $(APPDIR)/examples/fmsynth/musickeyboard
+# endif

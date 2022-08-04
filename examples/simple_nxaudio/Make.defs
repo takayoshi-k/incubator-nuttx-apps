@@ -1,0 +1,4 @@
+
+ifneq ($(CONFIG_EXAMPLES_SIMPLE_NXAUDIO),)
+CONFIGURED_APPS += $(APPDIR)/examples/simple_nxaudio
+endif

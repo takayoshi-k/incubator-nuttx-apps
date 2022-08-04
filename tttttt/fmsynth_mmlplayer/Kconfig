@@ -1,0 +1,29 @@
+#
+# For a description of the syntax of this configuration file,
+# see the file kconfig-language.txt in the NuttX tools repository.
+#
+
+config EXAMPLES_FMSYNTH_MMLPLAYER
+	tristate "MML player of FM Synthesizer"
+	default n
+	---help---
+		Sample program of play music according to "Music Macro Language"
+		with FM Synthesizer sound.
+
+if EXAMPLES_FMSYNTH_MMLPLAYER
+
+config EXAMPLES_FMSYNTH_MMLPLAYER_PROGNAME
+	string "FM Synthesizer MML Player Program name"
+	default "mmlplayer"
+	---help---
+		Command name of this "FM Synthesizer MML Player".
+
+config EXAMPLES_FMSYNTH_MMLPLAYER_PRIORITY
+	int "FM Synthesizer MML Player task priority"
+	default 100
+
+config EXAMPLES_FMSYNTH_MMLPLAYER_STACKSIZE
+	int "FM Synthesizer MML Player stack size"
+	default 2048
+
+endif
