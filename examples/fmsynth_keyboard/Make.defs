@@ -1,0 +1,4 @@
+
+ifneq ($(CONFIG_EXAMPLES_FMSYNTH_KEYBOARD),)
+CONFIGURED_APPS += $(APPDIR)/examples/fmsynth_keyboard
+endif
